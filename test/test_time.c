@@ -6,8 +6,8 @@
 #include <time.h>
 #include <gmp.h>
 
-#include "sample.h"
-#include "rlwe_sife.h"
+#include "../src/sample.h"
+#include "../src/rlwe_sife.h"
 
 #define N_TESTS 5
 
