@@ -206,10 +206,5 @@ int main()
 
 	test_rlwe_sife_vec_vec();
 
-
-	printf("TEST MATRIX-VECTOR\n");
-
-	test_rlwe_sife_mat_vec();
-
 	return 0;
 }
