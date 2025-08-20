@@ -199,12 +199,65 @@ int test_rlwe_sife_vec_vec()			/*Only vector-vector multiplication*/
 	return 0;
 }
 
+int test_rlwe_sife_gui()			/*Only vector-vector multiplication*/
+{
+
+	int outputHeight, outputWidth;
+
+	uint32_t mpk[SIFE_NMODULI][SIFE_N];
+	uint32_t msk[SIFE_NMODULI][SIFE_N];
+	uint32_t sk_y[TERMS][2][SIFE_NMODULI][SIFE_N] = {0};
+	uint32_t secImage[TERMS][2][SIFE_L+1][SIFE_NMODULI][SIFE_N];
+	uint32_t encryptedImage_t[TERMS][2][SIFE_L+1][SIFE_NMODULI][SIFE_N];
+
+	mpz_t dy[SIFE_N];
+	uint32_t dy2[SIFE_NMODULI][SIFE_N];
+	uint32_t* d_y = (uint32_t*)malloc(TERMS*2*TERMS*2*SIFE_NMODULI*SIFE_N*sizeof(uint32_t));
+
+	uint32_t m[SIFE_L];
+	uint32_t y[TERMS][2][SIFE_L] = {0};
+
+	uint64_t CLOCK1 = 0;
+	uint64_t CLOCK2 = 0;
+	uint64_t CLOCK3 = 0;
+	uint64_t CLOCK4 = 0;
+
+	uint64_t CLOCK_ENC = 0;
+	uint64_t CLOCK_KEYGEN = 0;
+	uint64_t CLOCK_DEC = 0;
+
+	for(int i=0;i<SIFE_N;i++) {
+		mpz_init(dy[i]);
+	}
+
+	for(int i = 0; i < N_TESTS; i++) {
+		CLOCK1 = cpucycles();
+		rlwe_sife_encrypt_gui((uint32_t*)m, mpk, (uint32_t*)encryptedImage_t, 2*TERMS);
+		CLOCK2 = cpucycles();
+		rlwe_sife_keygen_gui((uint32_t*)y, mpk, (uint32_t*)sk_y, TERMS*2);
+		CLOCK3 = cpucycles();
+		rlwe_sife_decrypt_gmp_gui3(secImage, (uint32_t*)y, (uint32_t*)sk_y, (uint32_t*)d_y, TERMS*2, TERMS*2);
+		CLOCK4 = cpucycles();
+		CLOCK_ENC += CLOCK2 - CLOCK1;
+		CLOCK_KEYGEN += CLOCK3 - CLOCK2;
+		CLOCK_DEC += CLOCK4 - CLOCK3;
+		printf("Average times setup: \t \t %llu \n", CLOCK_ENC/N_TESTS);
+		printf("Average times enc: \t \t %llu \n",CLOCK_KEYGEN/N_TESTS);
+		printf("Average times key_pair: \t %llu \n",CLOCK_DEC/N_TESTS);
+		printf("TEST %llu DONE!\n\n", i);
+	}
+
+	return 0;
+}
+
 int main()
 {
 
 	printf("TEST VECTOR-VECTOR\n");
 
 	test_rlwe_sife_vec_vec();
+
+	test_rlwe_sife_gui();
 
 	return 0;
 }
