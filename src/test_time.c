@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
-#include <mach/mach_time.h>
+#include <time.h>
 #include <gmp.h>
 
 #include "../sample.h"
