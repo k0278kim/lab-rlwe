@@ -251,7 +251,7 @@ int test_rlwe_sife_gui3()			/*Only vector-vector multiplication*/
 		CLOCK2 = cpucycles();
 		rlwe_sife_keygen_gui((uint32_t*)y, mpk, (uint32_t*)sk_y, TERMS*2);
 		CLOCK3 = cpucycles();
-		rlwe_sife_decrypt_gmp_gui3(secImage, (uint32_t*)y, (uint32_t*)sk_y, (uint32_t*)d_y, TERMS*2, TERMS*2);
+		rlwe_sife_decrypt_gmp_gui3((uint32_t*)secImage, (uint32_t*)y, (uint32_t*)sk_y, (uint32_t*)d_y, TERMS*2, TERMS*2);
 		CLOCK4 = cpucycles();
 
 		CLOCK7=cpucycles();
