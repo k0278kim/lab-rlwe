@@ -8,7 +8,7 @@
 
 #include "../src/sample.h"
 #include "../src/rlwe_sife.h"
-#include "get_sample.h"
+#include "../src/get_sample.h"
 
 #define N_TESTS 5
 
