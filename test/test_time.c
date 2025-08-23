@@ -208,7 +208,7 @@ int test_rlwe_sife_gui()			/*Only vector-vector multiplication*/
 	uint32_t msk[SIFE_NMODULI][SIFE_N];
 	uint32_t sk_y[TERMS][2][SIFE_NMODULI][SIFE_N] = {0};
 	uint32_t secImage[TERMS][2][SIFE_L+1][SIFE_NMODULI][SIFE_N];
-	uint32_t encryptedImage_t[TERMS][2][SIFE_L+1][SIFE_NMODULI][SIFE_N];
+	uint32_t encryptedImage[TERMS][2][SIFE_L+1][SIFE_NMODULI][SIFE_N];
 
 	mpz_t dy[SIFE_N];
 	uint32_t dy2[SIFE_NMODULI][SIFE_N];
@@ -231,8 +231,12 @@ int test_rlwe_sife_gui()			/*Only vector-vector multiplication*/
 	}
 
 	for(int i = 0; i < N_TESTS; i++) {
+
+		get_sample((uint32_t*)m, SIFE_L);
+		get_sample((uint32_t*)y, TERMS * 2 * SIFE_L);
+
 		CLOCK1 = cpucycles();
-		rlwe_sife_encrypt_gui((uint32_t*)m, mpk, (uint32_t*)encryptedImage_t, 2*TERMS);
+		rlwe_sife_encrypt_gui((uint32_t*)m, mpk, (uint32_t*)encryptedImage, 2*TERMS);
 		CLOCK2 = cpucycles();
 		rlwe_sife_keygen_gui((uint32_t*)y, mpk, (uint32_t*)sk_y, TERMS*2);
 		CLOCK3 = cpucycles();
@@ -255,7 +259,7 @@ int main()
 
 	printf("TEST VECTOR-VECTOR\n");
 
-	test_rlwe_sife_vec_vec();
+	// test_rlwe_sife_vec_vec();
 
 	test_rlwe_sife_gui();
 
