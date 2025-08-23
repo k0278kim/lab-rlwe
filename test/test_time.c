@@ -205,7 +205,7 @@ int test_rlwe_sife_gui3()			/*Only vector-vector multiplication*/
 
 	int outputHeight, outputWidth;
 
-	uint32_t mpk[SIFE_L][SIFE_NMODULI][SIFE_N];
+	uint32_t mpk[SIFE_L+1][SIFE_NMODULI][SIFE_N];
 	uint32_t msk[SIFE_L][SIFE_NMODULI][SIFE_N];
 	uint32_t sk_y[TERMS][2][SIFE_NMODULI][SIFE_N] = {0};
 	uint32_t secImage[TERMS][2][SIFE_L+1][SIFE_NMODULI][SIFE_N];
