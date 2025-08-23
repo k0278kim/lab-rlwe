@@ -222,7 +222,10 @@ int test_rlwe_sife_gui()			/*Only vector-vector multiplication*/
 	uint64_t CLOCK2 = 0;
 	uint64_t CLOCK3 = 0;
 	uint64_t CLOCK4 = 0;
+	uint64_t CLOCK5 = 0;
+	uint64_t CLOCK6 = 0;
 
+	uint64_t CLOCK_SETUP = 0;
 	uint64_t CLOCK_ENC = 0;
 	uint64_t CLOCK_KEYGEN = 0;
 	uint64_t CLOCK_DEC = 0;
@@ -236,6 +239,10 @@ int test_rlwe_sife_gui()			/*Only vector-vector multiplication*/
 		get_sample((uint32_t*)m, SIFE_L);
 		get_sample((uint32_t*)y, TERMS * 2 * SIFE_L);
 
+		CLOCK5=cpucycles();
+		rlwe_sife_setup(mpk, msk); // 키 생성
+		CLOCK6=cpucycles();
+
 		CLOCK1 = cpucycles();
 		rlwe_sife_encrypt_gui((uint32_t*)m, mpk, (uint32_t*)encryptedImage, 2*TERMS);
 		CLOCK2 = cpucycles();
@@ -243,14 +250,19 @@ int test_rlwe_sife_gui()			/*Only vector-vector multiplication*/
 		CLOCK3 = cpucycles();
 		rlwe_sife_decrypt_gmp_gui3(secImage, (uint32_t*)y, (uint32_t*)sk_y, (uint32_t*)d_y, TERMS*2, TERMS*2);
 		CLOCK4 = cpucycles();
+
+		CLOCK_SETUP += CLOCK6 - CLOCK5;
 		CLOCK_ENC += CLOCK2 - CLOCK1;
 		CLOCK_KEYGEN += CLOCK3 - CLOCK2;
 		CLOCK_DEC += CLOCK4 - CLOCK3;
-		printf("Average times setup: \t \t %llu \n", CLOCK_ENC/N_TESTS);
-		printf("Average times enc: \t \t %llu \n",CLOCK_KEYGEN/N_TESTS);
-		printf("Average times key_pair: \t %llu \n",CLOCK_DEC/N_TESTS);
+
 		printf("TEST %llu DONE!\n\n", i);
 	}
+
+	printf("Average times enc: \t \t %llu \n", CLOCK_SETUP/N_TESTS);
+	printf("Average times enc: \t \t %llu \n", CLOCK_ENC/N_TESTS);
+	printf("Average times keygen: \t \t %llu \n",CLOCK_KEYGEN/N_TESTS);
+	printf("Average times dec: \t %llu \n",CLOCK_DEC/N_TESTS);
 
 	return 0;
 }
@@ -260,7 +272,7 @@ int main()
 
 	printf("TEST VECTOR-VECTOR\n");
 
-	// test_rlwe_sife_vec_vec();
+	test_rlwe_sife_vec_vec();
 
 	test_rlwe_sife_gui();
 
