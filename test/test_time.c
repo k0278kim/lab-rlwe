@@ -267,7 +267,7 @@ int test_rlwe_sife_gui3()			/*Only vector-vector multiplication*/
 		printf("TEST %llu DONE!\n\n", i);
 	}
 
-	printf("Average times setuup: \t \t %llu \n", CLOCK_SETUP/N_TESTS);
+	printf("Average times setup: \t \t %llu \n", CLOCK_SETUP/N_TESTS);
 	printf("Average times enc: \t \t %llu \n", CLOCK_ENC/N_TESTS);
 	printf("Average times keygen: \t \t %llu \n",CLOCK_KEYGEN/N_TESTS);
 	printf("Average times dec: \t %llu \n",CLOCK_DEC/N_TESTS);
