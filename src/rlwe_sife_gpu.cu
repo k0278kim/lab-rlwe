@@ -314,9 +314,9 @@ extern "C" void rlwe_sife_decrypt_gmp_gpu2(uint32_t* c, const uint32_t* y, uint3
 
 
 #ifdef PERF	
-extern "C" void rlwe_sife_decrypt_gmp_gpu3(uint32_t* c, const uint32_t* y, uint32_t* sk_y, uint32_t* d_y, int repeat, float* part2_time)  
+extern "C" void rlwe_sife_decrypt_gmp_gpu3_x16(uint32_t* c, const uint32_t* y, uint32_t* sk_y, uint32_t* d_y, int repeat, float* part2_time)  
 #else
-extern "C" void rlwe_sife_decrypt_gmp_gpu3(uint32_t* c, const uint32_t* y, uint32_t* sk_y, uint32_t* d_y, int repeat, int repeat2)
+extern "C" void rlwe_sife_decrypt_gmp_gpu3_x16(uint32_t* c, const uint32_t* y, uint32_t* sk_y, uint32_t* d_y, int repeat, int repeat2)
 #endif   
 {
 	uint32_t *d_c, *d_yarray, *dev_dy, *d_sky;
@@ -337,9 +337,51 @@ extern "C" void rlwe_sife_decrypt_gmp_gpu3(uint32_t* c, const uint32_t* y, uint3
 	cudaMemcpy(d_sky, sk_y, repeat2 * SIFE_NMODULI*SIFE_N*sizeof(uint32_t),cudaMemcpyHostToDevice);		
 
 	dim3 grid1(SIFE_NMODULI, repeat, repeat2);
-	decryption_gpu3<<<grid1, 1024>>>(d_yarray, d_c, d_sky, dev_dy);
+	decryption_gpu3_x16<<<grid1, 1024>>>(d_yarray, d_c, d_sky, dev_dy);
 
 	cudaMemcpy(d_y, dev_dy, repeat2 * repeat * SIFE_NMODULI*SIFE_N*sizeof(uint32_t), cudaMemcpyDeviceToHost);
+
+#ifdef PERF		
+	cudaEventRecord(stop);
+	cudaEventSynchronize(stop);  
+  	cudaEventElapsedTime(&elapsed, start, stop);   
+  	//printf("rlwe_sife_decrypt_gmp part 2 %.4f ms \n", elapsed);    
+  	*part2_time += elapsed; 
+#endif   
+
+	cudaFree(d_yarray);
+	cudaFree(d_c);
+	cudaFree(d_sky);	
+	cudaFree(dev_dy);
+}
+
+#ifdef PERF	
+extern "C" void rlwe_sife_decrypt_gmp_gpu3_x4(uint32_t* c, const uint32_t* y, uint32_t* sk_y, uint32_t* d_y, int repeat, float* part2_time)  
+#else
+extern "C" void rlwe_sife_decrypt_gmp_gpu3_x4(uint32_t* c, const uint32_t* y, uint32_t* sk_y, uint32_t* d_y, int repeat)
+#endif   
+{
+	uint32_t *d_c, *d_yarray, *dev_dy, *d_sky;
+#ifdef PERF
+	cudaEvent_t start, stop;	
+	float elapsed;
+	
+	cudaEventCreate(&start);	cudaEventCreate(&stop);
+	cudaEventRecord(start);
+#endif	
+	cudaMalloc((void**)&d_c, repeat * (SIFE_L+1)*SIFE_NMODULI*SIFE_N*sizeof(uint32_t));
+	cudaMalloc((void**)&d_yarray, SIFE_L*sizeof(uint32_t));
+	cudaMalloc((void**)&d_sky, SIFE_NMODULI*SIFE_N*sizeof(uint32_t));	
+	cudaMalloc((void**)&dev_dy, repeat * SIFE_NMODULI*SIFE_N*sizeof(uint32_t));
+	
+	cudaMemcpy(d_c, c, repeat * (SIFE_L+1)*SIFE_NMODULI*SIFE_N*sizeof(uint32_t),cudaMemcpyHostToDevice);	
+	cudaMemcpy(d_yarray, y, SIFE_L*sizeof(uint32_t),cudaMemcpyHostToDevice);	
+	cudaMemcpy(d_sky, sk_y, SIFE_NMODULI*SIFE_N*sizeof(uint32_t),cudaMemcpyHostToDevice);		
+
+	dim3 grid1(SIFE_NMODULI, repeat);
+	decryption_gpu3_x4<<<grid1, 1024>>>(d_yarray, d_c, d_sky, dev_dy);
+
+	cudaMemcpy(d_y, dev_dy, repeat * SIFE_NMODULI*SIFE_N*sizeof(uint32_t), cudaMemcpyDeviceToHost);
 
 #ifdef PERF		
 	cudaEventRecord(stop);

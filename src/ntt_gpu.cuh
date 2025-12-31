@@ -18,7 +18,5 @@ __global__ void GS_reverse_gpu_1block_3round(uint32_t* a);
 __global__ void keygen_gpu(const uint32_t *y, uint32_t *d_msk, uint32_t *d_sky);
 __global__ void decryption_gpu1(const uint32_t *y, uint32_t *c, uint32_t* d_sky, uint32_t *dev_dy);
 __global__ void decryption_gpu2(const uint32_t *y, uint32_t *c, uint32_t* d_sky, uint32_t *dev_dy);
-__global__ void decryption_gpu3(const uint32_t *y, uint32_t *c, uint32_t* d_sky, uint32_t *dev_dy);
-
-
-
+__global__ void decryption_gpu3_x16(const uint32_t *y, uint32_t *c, uint32_t* d_sky, uint32_t *dev_dy);
+__global__ void decryption_gpu3_x4(const uint32_t *y, uint32_t *c, uint32_t* d_sky, uint32_t *dev_dy);

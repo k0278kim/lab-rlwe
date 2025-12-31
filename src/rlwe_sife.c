@@ -26,14 +26,18 @@ extern void rlwe_sife_encrypt_gpu(uint32_t* m, uint32_t mpk[SIFE_L+1][SIFE_NMODU
 extern void rlwe_sife_keygen_gpu(const uint32_t* y, const uint32_t msk[SIFE_L][SIFE_NMODULI][SIFE_N], uint32_t* sk_y, int repeat, float* part2_time);
 extern void rlwe_sife_decrypt_gmp_gpu1(uint32_t* c, const uint32_t* y, uint32_t* sk_y, uint32_t* d_y, int repeat, float* part2_time);
 extern void rlwe_sife_decrypt_gmp_gpu2(uint32_t* c, const uint32_t* y, uint32_t* sk_y, uint32_t* d_y, int repeat, float* part2_time);
-extern void rlwe_sife_decrypt_gmp_gpu3(uint32_t* c, const uint32_t* y, uint32_t* sk_y, uint32_t* d_y, int repeat, float* part2_time);
+extern void rlwe_sife_decrypt_gmp_gpu3_x16(uint32_t* c, const uint32_t* y, uint32_t* sk_y, uint32_t* d_y, int repeat, float* part2_time);
+extern void rlwe_sife_decrypt_gmp_gpu3_x4(uint32_t* c, const uint32_t* y, uint32_t* sk_y, uint32_t* d_y, int repeat, float* part2_time);
+
 #else
 extern void rlwe_sife_setup_gpu(uint32_t mpk[SIFE_L+1][SIFE_NMODULI][SIFE_N], uint32_t msk[SIFE_L][SIFE_NMODULI][SIFE_N], unsigned char *seed2, unsigned char *seed3);
 extern void rlwe_sife_encrypt_gpu(uint32_t* m, uint32_t mpk[SIFE_L+1][SIFE_NMODULI][SIFE_N], uint32_t* c, unsigned char *seed2, unsigned char *seed3, int repeat);
 extern void rlwe_sife_keygen_gpu(const uint32_t* y, const uint32_t msk[SIFE_L][SIFE_NMODULI][SIFE_N], uint32_t* sk_y, int repeat);
 extern void rlwe_sife_decrypt_gmp_gpu1(uint32_t* c, const uint32_t* y, uint32_t* sk_y, uint32_t* d_y, int repeat);
 extern void rlwe_sife_decrypt_gmp_gpu2(uint32_t* c, const uint32_t* y, uint32_t* sk_y, uint32_t* d_y, int repeat);
-extern void rlwe_sife_decrypt_gmp_gpu3(uint32_t* c, const uint32_t* y, uint32_t* sk_y, uint32_t* d_y, int repeat, int repeat2);
+extern void rlwe_sife_decrypt_gmp_gpu3_x16(uint32_t* c, const uint32_t* y, uint32_t* sk_y, uint32_t* d_y, int repeat, int repeat2);
+extern void rlwe_sife_decrypt_gmp_gpu3_x4(uint32_t* c, const uint32_t* y, uint32_t* sk_y, uint32_t* d_y, int repeat);
+
 #endif   
 
 #ifdef PERF	
@@ -334,15 +338,29 @@ void rlwe_sife_decrypt_gmp_gui2(uint32_t* c, const uint32_t* y, uint32_t* sk_y, 
 }
 
 #ifdef PERF	
-void rlwe_sife_decrypt_gmp_gui3(uint32_t* c, const uint32_t* y, uint32_t* sk_y, uint32_t* d_y, int repeat, float* part2_time)  
+void rlwe_sife_decrypt_gmp_gui3_x16(uint32_t* c, const uint32_t* y, uint32_t* sk_y, uint32_t* d_y, int repeat, float* part2_time)  
 #else
-void rlwe_sife_decrypt_gmp_gui3(uint32_t* c, const uint32_t* y, uint32_t* sk_y, uint32_t* d_y, int repeat, int repeat2)  
+void rlwe_sife_decrypt_gmp_gui3_x16(uint32_t* c, const uint32_t* y, uint32_t* sk_y, uint32_t* d_y, int repeat, int repeat2)
 #endif   
 {
 #ifdef PERF
-	rlwe_sife_decrypt_gmp_gpu3(c, y, sk_y, d_y, repeat, part2_time);
+	rlwe_sife_decrypt_gmp_gpu3_x16(c, y, sk_y, d_y, repeat, part2_time);
 #else
-	rlwe_sife_decrypt_gmp_gpu3(c, y, sk_y, d_y, repeat, repeat2);
+	rlwe_sife_decrypt_gmp_gpu3_x16(c, y, sk_y, d_y, repeat, repeat2);
+#endif   
+}
+
+
+#ifdef PERF	
+void rlwe_sife_decrypt_gmp_gui3_x4(uint32_t* c, const uint32_t* y, uint32_t* sk_y, uint32_t* d_y, int repeat, float* part2_time)  
+#else
+void rlwe_sife_decrypt_gmp_gui3_x4(uint32_t* c, const uint32_t* y, uint32_t* sk_y, uint32_t* d_y, int repeat)  
+#endif   
+{
+#ifdef PERF
+	rlwe_sife_decrypt_gmp_gpu3_x4(c, y, sk_y, d_y, repeat, part2_time);
+#else
+	rlwe_sife_decrypt_gmp_gpu3_x4(c, y, sk_y, d_y, repeat);
 #endif   
 }
 
@@ -392,10 +410,146 @@ void round_extract_gmp(mpz_t a[SIFE_N])
 	mpz_clear(SIFE_Q_gmp_by2);
 }
 
+// double round_extract_gmp2(uint32_t d_y[SIFE_NMODULI][SIFE_N])
+// {
+// 	int i;
+// 	mpz_t a[SIFE_N];
+// 	double result;
+
+// 	mpz_t quotient, rem, a_i, SIFE_Q_gmp, SIFE_Q_gmp_by2, SIFE_P_gmp;
+// 	mpz_init(quotient);
+// 	mpz_init(rem);
+// 	mpz_init(a_i);
+// 	mpz_init(SIFE_Q_gmp);
+// 	mpz_init(SIFE_P_gmp);
+// 	mpz_init(SIFE_Q_gmp_by2);
+
+//     for(int h=0;h<SIFE_N;h++){
+//         mpz_init(a[h]);
+//     }
+// 	crt_reverse_gmp(a, d_y);
+
+// 	if(mpz_set_str(SIFE_Q_gmp, SIFE_Q_str, 10)!=0){
+// 		printf("--ERROR unable to set Q to gmp--\n");
+// 		return 0;
+// 	}
+
+// 	if(mpz_set_str(SIFE_P_gmp, SIFE_P_str, 10)!=0){
+// 		printf("--ERROR unable to set P to gmp--\n");
+// 		return 0;
+// 	}
+
+// 	mpz_fdiv_q_ui(SIFE_Q_gmp_by2, SIFE_Q_gmp, 2);
+// 	//gmp_printf("d[0]: %Zd\n", a[0]);
+// 	for (i = 0; i < SIFE_N; ++i) {
+// 		//mpz_set_ui(a_i, a[i]);
+// 		mpz_set(a_i, a[i]);
+// 		//mpz_mul_ui(a_i, a_i, SIFE_P);
+// 		mpz_mul(a_i, a_i, SIFE_P_gmp);
+// 		//mpz_fdiv_qr_ui(quotient, rem, a_i, SIFE_Q);
+// 		mpz_fdiv_qr(quotient, rem, a_i, SIFE_Q_gmp);
+// 		//if( mpz_cmp_ui(rem, (SIFE_Q_gmp >> 1)) > 0 ) {
+// 		if( mpz_cmp(rem, SIFE_Q_gmp_by2 ) > 0 ) {
+// 			mpz_add_ui(quotient, quotient, 1);
+// 		}
+// 		//a[i] = mpz_get_ui(quotient);
+// 		mpz_set(a[i], quotient);
+// 	}
+
+// 	result = mpz_get_d(a[0]);
+//     for(int h=0;h<SIFE_N;h++){
+//         mpz_clear(a[h]);
+//     }
+
+// 	mpz_clear(quotient);
+// 	mpz_clear(rem);
+// 	mpz_clear(a_i);
+// 	mpz_clear(SIFE_Q_gmp);
+// 	mpz_clear(SIFE_P_gmp);
+// 	mpz_clear(SIFE_Q_gmp_by2);
+
+// 	return result;
+// }
+
+static inline unsigned __int128 mul128(unsigned __int128 a, unsigned __int128 b){ return a*b; }
+
+double round_extract_single(uint32_t d_y[SIFE_NMODULI][SIFE_N]) {
+  // CRT (Garner)
+  unsigned __int128 x = (unsigned)d_y[0][0];
+  unsigned __int128 MM = (unsigned)SIFE_MOD_Q_I[0];
+  for (int i=1;i<SIFE_NMODULI;++i){
+    uint32_t xmod = (uint32_t)(x % (unsigned __int128)SIFE_MOD_Q_I[i]);
+    uint32_t diff = (d_y[i][0] >= xmod) ? (d_y[i][0]-xmod) : (uint32_t)(d_y[i][0] + (uint64_t)SIFE_MOD_Q_I[i] - xmod);
+    uint32_t ti = (uint32_t)(((uint64_t)diff * (uint64_t)SIFE_CRT_CONSTS_32[i]) % (uint64_t)SIFE_MOD_Q_I[i]);
+    x  += (unsigned __int128)ti * MM;
+    MM *= (unsigned __int128)SIFE_MOD_Q_I[i];
+  }
+
+  // Q = ∏ m[i], HALF = floor((Q-1)/2)
+  unsigned __int128 Q = (unsigned __int128)SIFE_MOD_Q_I[0];
+  Q = mul128(Q, (unsigned __int128)SIFE_MOD_Q_I[1]);
+  Q = mul128(Q, (unsigned __int128)SIFE_MOD_Q_I[2]);
+  unsigned __int128 HALF = (Q - 1) >> 1;
+
+  // round_extract (tie=내림): q = floor((x*P + HALF)/Q)
+  unsigned __int128 q = (x * (unsigned __int128)SIFE_P + HALF) / Q;
+  return (double)q;  // 범위상 64비트 충분
+}
+
+void crt_reverse_gmp_single(mpz_t a0, const uint32_t split_a[SIFE_NMODULI][SIFE_N])
+{
+    uint64_t i, j;
+    mpz_t gmp_u, gmp_c, gmp_x;
+
+    mpz_init(gmp_u);
+    mpz_init(gmp_c);
+    mpz_init(gmp_x);
+
+    // --- k = 0 번째 값만 복원 ---
+    mpz_set_ui(gmp_u, split_a[0][0]);
+    mpz_set(gmp_x, gmp_u);
+
+    for (i = 1; i < SIFE_NMODULI; i++) {
+        // gmp_c = v_i = split_a[i][0]
+        mpz_set_ui(gmp_c, split_a[i][0]);
+
+        // gmp_u = (v_i - x)
+        mpz_sub(gmp_u, gmp_c, gmp_x);
+
+        // gmp_u = (v_i - x) * C_i
+        mpz_mul_ui(gmp_u, gmp_u, SIFE_CRT_CONSTS[i]);
+
+        // gmp_u = ((v_i - x) * C_i) mod m_i
+        mpz_mod_ui(gmp_u, gmp_u, SIFE_MOD_Q_I[i]);
+
+        // gmp_c = 1
+        mpz_set_ui(gmp_c, 1);
+
+        // gmp_c = ∏_{j=0}^{i-1} m_j
+        for (j = 0; j < i; j++) {
+            mpz_mul_ui(gmp_c, gmp_c, SIFE_MOD_Q_I[j]);
+        }
+
+        // gmp_u = gmp_u * ∏_{j=0}^{i-1} m_j
+        mpz_mul(gmp_u, gmp_u, gmp_c);
+
+        // gmp_x += gmp_u
+        mpz_add(gmp_x, gmp_x, gmp_u);
+    }
+
+    // 결과 저장
+    mpz_set(a0, gmp_x);
+
+    mpz_clear(gmp_u);
+    mpz_clear(gmp_c);
+    mpz_clear(gmp_x);
+}
+
+
 double round_extract_gmp2(uint32_t d_y[SIFE_NMODULI][SIFE_N])
 {
 	int i;
-	mpz_t a[SIFE_N];
+	mpz_t a;
 	double result;
 
 	mpz_t quotient, rem, a_i, SIFE_Q_gmp, SIFE_Q_gmp_by2, SIFE_P_gmp;
@@ -406,10 +560,8 @@ double round_extract_gmp2(uint32_t d_y[SIFE_NMODULI][SIFE_N])
 	mpz_init(SIFE_P_gmp);
 	mpz_init(SIFE_Q_gmp_by2);
 
-    for(int h=0;h<SIFE_N;h++){
-        mpz_init(a[h]);
-    }
-	crt_reverse_gmp(a, d_y);
+	mpz_init(a);
+	crt_reverse_gmp_single(a, d_y);
 
 	if(mpz_set_str(SIFE_Q_gmp, SIFE_Q_str, 10)!=0){
 		printf("--ERROR unable to set Q to gmp--\n");
@@ -423,25 +575,21 @@ double round_extract_gmp2(uint32_t d_y[SIFE_NMODULI][SIFE_N])
 
 	mpz_fdiv_q_ui(SIFE_Q_gmp_by2, SIFE_Q_gmp, 2);
 	//gmp_printf("d[0]: %Zd\n", a[0]);
-	for (i = 0; i < SIFE_N; ++i) {
 		//mpz_set_ui(a_i, a[i]);
-		mpz_set(a_i, a[i]);
-		//mpz_mul_ui(a_i, a_i, SIFE_P);
-		mpz_mul(a_i, a_i, SIFE_P_gmp);
-		//mpz_fdiv_qr_ui(quotient, rem, a_i, SIFE_Q);
-		mpz_fdiv_qr(quotient, rem, a_i, SIFE_Q_gmp);
-		//if( mpz_cmp_ui(rem, (SIFE_Q_gmp >> 1)) > 0 ) {
-		if( mpz_cmp(rem, SIFE_Q_gmp_by2 ) > 0 ) {
-			mpz_add_ui(quotient, quotient, 1);
-		}
-		//a[i] = mpz_get_ui(quotient);
-		mpz_set(a[i], quotient);
+	mpz_set(a_i, a);
+	//mpz_mul_ui(a_i, a_i, SIFE_P);
+	mpz_mul(a_i, a_i, SIFE_P_gmp);
+	//mpz_fdiv_qr_ui(quotient, rem, a_i, SIFE_Q);
+	mpz_fdiv_qr(quotient, rem, a_i, SIFE_Q_gmp);
+	//if( mpz_cmp_ui(rem, (SIFE_Q_gmp >> 1)) > 0 ) {
+	if( mpz_cmp(rem, SIFE_Q_gmp_by2 ) > 0 ) {
+		mpz_add_ui(quotient, quotient, 1);
 	}
+	//a[i] = mpz_get_ui(quotient);
+	mpz_set(a, quotient);
 
-	result = mpz_get_d(a[0]);
-    for(int h=0;h<SIFE_N;h++){
-        mpz_clear(a[h]);
-    }
+	result = mpz_get_d(a);
+	mpz_clear(a);
 
 	mpz_clear(quotient);
 	mpz_clear(rem);
