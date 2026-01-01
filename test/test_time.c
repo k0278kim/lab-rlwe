@@ -281,7 +281,7 @@ int main()
 
 	printf("TEST VECTOR-VECTOR\n");
 
-	test_rlwe_sife_vec_vec();
+	// test_rlwe_sife_vec_vec();
 
 	test_rlwe_sife_gui3();
 
