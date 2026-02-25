@@ -46,7 +46,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cu | $(OBJ_DIR)
 
 # 실행 파일 링크
 $(TARGET): $(C_OBJS) $(CU_OBJS) $(MAIN)
-	$(CC) -o $@ $(C_OBJS) $(CU_OBJS) $(MAIN) -lgmp -lm $(CUDA_LIB_DIR) $(CUDA_LINK_LIBS)
+	$(CC) -o $@ $(C_OBJS) $(CU_OBJS) $(MAIN) -lgmp -lm $(CUDA_LIB_DIR) $(CUDA_LINK_LIBS) -lstdc++
 
 # 정리
 clean:
