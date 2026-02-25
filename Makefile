@@ -1,5 +1,5 @@
 # CUDA 관련 설정
-CUDA_ROOT_DIR := /usr/local/cuda-12.8
+CUDA_ROOT_DIR := /usr/local/cuda-12.2
 CUDA_LIB_DIR := -L$(CUDA_ROOT_DIR)/lib64
 CUDA_INC_DIR := -I$(CUDA_ROOT_DIR)/include
 CUDA_LINK_LIBS := -lcudart
@@ -10,7 +10,7 @@ NVCC := nvcc
 RM := /bin/rm
 
 CFLAGS := -Wall -Wextra -O3 -fomit-frame-pointer -march=native -mavx2 -mfma -fPIC
-NVCC_FLAGS := -arch=sm_75 -Xcompiler -fPIC -ccbin $(CC) $(CUDA_INC_DIR)
+NVCC_FLAGS := -arch=sm_80 -Xcompiler -fPIC -ccbin $(CC) $(CUDA_INC_DIR)
 
 # 디렉토리
 SRC_DIR := src
